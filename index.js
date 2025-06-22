@@ -15,6 +15,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/url', urlroute);
 
+// app.get("/arka",(req,res)=>{
+//    return res.json({ message: "Hi" });
+// })
+
 app.get('/:shortid', async (req, res) => {
   const shortid = req.params.shortid
 
