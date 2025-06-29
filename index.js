@@ -1,25 +1,53 @@
-const express = require('express')
+const express = require('express');
+const path=require("path");
 const urlroute = require('./routes/url')
 const url = require('./models/url')
 const { connecttomongodb } = require('./connect')
-
+const staticrouter=require("./routes/staticrouter");
 const app = express()
 const PORT = 8001
+
 
 connecttomongodb('mongodb://localhost:27017/short-url')
   .then(() => console.log('Mongodb connected..'))
   .catch(err => console.error('MongoDB connection failed:', err))
 
+app.set("view engine","ejs");
+app.set("views",path.resolve("./views"));
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
+
+
 
 app.use('/url', urlroute);
+ 
+app.use("/",staticrouter);
 
-// app.get("/arka",(req,res)=>{
-//    return res.json({ message: "Hi" });
+app.get("/test",async (req,res)=>{
+   const allusers=await url.find({});
+   return res.end(`
+    <htmL>
+    <head>
+    <body>
+    <ol>
+    ${allusers.map(url=>`<li>${url.shortId} - ${url.redirecturl} - ${url.visithistory.length}</li>`).join('')}
+    </ol>
+    </body>
+    </head>
+    </html>
+    `) 
+})
+
+// app.get("/test1", async (req,res)=>{
+//   const allurls=await url.find({});
+//   return res.render("home",{
+//     urls:allurls,
+//   });
 // })
 
-app.get('/:shortid', async (req, res) => {
+
+app.get('/url/:shortid', async (req, res) => {
   const shortid = req.params.shortid
 
   const entry = await url.findOneAndUpdate(
