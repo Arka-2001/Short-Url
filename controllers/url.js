@@ -1,10 +1,11 @@
-//const { shortId } = require("shortid");
+
 const url = require('../models/url')
 const shortid = require('shortid')
 
 async function generateshorturl (req, res) {
   const shortId = shortid.generate();
-  const body = req.body
+  const body = req.body;
+
 
   console.log("Received URL:", req.body.url);
   if (!body.url) {
@@ -14,11 +15,15 @@ async function generateshorturl (req, res) {
   await url.create({
     shortId: shortId,
     redirecturl: body.url,
-    visithistory: []
+    visithistory: [],
+    createdBy:req.user._id,
   })
+
+  const allurls = await url.find({});
 
   return res.render("home",{
     shortid:shortId,
+    urls: allurls, 
   });
 
   // return res.json({ id: shortId })

@@ -4,12 +4,14 @@ const urlroute = require('./routes/url')
 const url = require('./models/url')
 const { connecttomongodb } = require('./connect')
 const staticrouter=require("./routes/staticrouter");
+const  userroute=require("./routes/user");
 const app = express()
 const PORT = 8001
-
+const cookieparser=require("cookie-parser");
+const {restricttologgedinusernoly}=require("./middlewares/auth");
 
 connecttomongodb('mongodb://localhost:27017/short-url')
-  .then(() => console.log('Mongodb connected..'))
+  .then(() => console.log('Mongodb connected..')) 
   .catch(err => console.error('MongoDB connection failed:', err))
 
 app.set("view engine","ejs");
@@ -17,10 +19,12 @@ app.set("views",path.resolve("./views"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieparser());
 
 
 
-app.use('/url', urlroute);
+app.use("/user",userroute);
+app.use('/url',restricttologgedinusernoly, urlroute);
  
 app.use("/",staticrouter);
 
